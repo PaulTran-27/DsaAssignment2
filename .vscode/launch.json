@@ -7,9 +7,9 @@
       "request": "launch",
       "args": [],
       "stopAtEntry": false,
-      "externalConsole": false,
-      "cwd": "/mnt/Workspace/BK_assignment/DsaAssignment2",
-      "program": "/mnt/Workspace/BK_assignment/DsaAssignment2/build/Debug/outDebug",
+      "externalConsole": true,
+      "cwd": "d:/BK_Material/231/DSA/DsaAssignment2",
+      "program": "d:/BK_Material/231/DSA/DsaAssignment2/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

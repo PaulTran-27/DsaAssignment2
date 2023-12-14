@@ -75,9 +75,10 @@ class JJK_Restaurant {
 
 			return encrypted;
 		}
-		void jutsushikijunten(string customer_name){
+		void jutsushiki_junten(string customer_name){
+			cout << customer_name << endl;
 			string encrypted_n = this->ceasar_encrypt(customer_name);
-
+			cout << encrypted_n << endl;
 			map<char, int> char_to_freq_after_encrypt = this->counter(encrypted_n);
 			// Sort list X
 			vector<pair<char,int>> sorted_list_X;
@@ -89,7 +90,7 @@ class JJK_Restaurant {
 				cout << i.first << " " << i.second << setw(5);
 			}
 			cout << endl;
-			cout << encrypted_n << endl;
+			// cout << encrypted_n << endl;
 		};
 };
 
@@ -103,52 +104,44 @@ void simulate(string filename)
 	int count = 1;
 	while(ss >> str)
 	{ 
-		if (str!="RED") cout << "----------------" + str + "----------------" << '\n';
-		count++;
 		if(str == "MAXSIZE")
 		{
 			ss >> maxsize;
 			cout << maxsize + '\n';
 			// MAXSIZE = stoi(maxsize); 
-			r->set_maxsize(maxsize);
+			r->set_maxsize(stoi(maxsize));
     	}
-        else if(str == "RED") // RED <NAME> <ENERGY>
+        else if(str == "LAPSE") // RED <NAME> <ENERGY>
         {
+			cout << "\nJUNTEN !!\n";
             ss >> name;
-            ss >> energy;
-            r->RED(name, stoi(energy));
+			r->jutsushiki_junten(name);
     	}
-    	else if(str == "BLUE") // BLUE <NUM>
+    	else if(str == "HAND") // BLUE <NUM>
     	{
-                ss >> num;
-    			r->BLUE(stoi(num));
+                // ss >> num;
+    			// r->BLUE(stoi(num));
 		}
-    	else if(str == "PURPLE") // PURPLE
+    	else if(str == "CLEAVE") // PURPLE
     	{
-    			r->PURPLE();
+
+    			// r->PURPLE();
 		}
-		else if(str == "REVERSAL") // REVERSAL
+		else if(str == "KOKUSEN") // REVERSAL
 		{
-    			r->REVERSAL();	
+    			// r->REVERSAL();	
 		}
-    	else if(str == "UNLIMITED_VOID") // UNLIMITED_VOID
+    	else if(str == "LIMITLESS") // UNLIMITED_VOID
      	{   	
-    			r->UNLIMITED_VOID();
+    			// r->UNLIMITED_VOID();
     	}
-    	else if(str == "DOMAIN_EXPANSION") // DOMAIN_EXPANSION
+    	else if(str == "KEITEIKEN") // DOMAIN_EXPANSION
     	{
-    			r->DOMAIN_EXPANSION();
+    			// r->DOMAIN_EXPANSION();
     	}
-    	else // LIGHT <NUM>
-    	{
-                ss >> num;
-				if (stoi(num)) cout << "TABLE\n"; 
-				else cout << "QUEUE\n";
-    			r->LIGHT(stoi(num));
-				
-    	}
+    	
     }
-	res->jutsushikijunten("abaaabbbDd");
-	delete res;
+	
+	delete r;
 	return;
 }
