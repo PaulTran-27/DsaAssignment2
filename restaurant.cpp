@@ -6,6 +6,37 @@ using namespace std;
 // 		string name;
 
 // }
+
+class HuVLTree: {
+	public: 
+		HuVLNode* root;
+	public:
+
+		class HuVLNode {
+			public:
+				int    weight;
+				char   data;
+				int    balance;
+				HuVLNode* left;
+				HuVLNode* right;
+				
+				friend class HuVLTree;
+
+			public:
+				HuVLNode(int weight, char data = NULL, HuVLNode* left = nullptr, HuVLNode* right = nullptr) {
+					this->weight = weight;
+					this->data = data;
+					this->left = left;
+					this->right = right;
+				};
+				~HuVLNode() {
+					delete this->left;
+					delete this->right;
+				}
+		};
+
+		HuVLTree ()
+}
 class JJK_Restaurant {
 	public:
 		int MAXSIZE;
