@@ -733,14 +733,16 @@ class FukumaMizushi {
 			}
 			void reheap_up(int i) {
 				while (i > 0 && ((heap[parent(i)].second > heap[i].second))) {
-					// if (heap[parent(i)].second == heap[i].second) {
-					// 	if ((*this->id_to_idle)[heap[parent(i)].first] <
-					// 		(*this->id_to_idle)[heap[i].first]) {
-					// 			swap(heap[i], heap[parent(i)]);
-					// 		}
-					// } else {
+					if (heap[parent(i)].second == heap[i].second) {
+						if ((*this->id_to_idle)[heap[parent(i)].first] <
+							(*this->id_to_idle)[heap[i].first]) {
+								swap(heap[i], heap[parent(i)]);
+								i = parent(i);
+								continue;
+							}
+					}
 					swap(heap[i], heap[parent(i)]);
-					// }
+					
 					i = parent(i);
 				}
 			}
@@ -758,29 +760,42 @@ class FukumaMizushi {
 					minIndex = right;
 				}
 
-				if ( right < heap_size && left < heap_size && (heap[right].second == heap[left].second) 
-				     && heap[left].second <= heap[i].second) {
-
-					if ((*this->id_to_idle)[heap[right].first] > (*this->id_to_idle)[heap[left].first]) {
-						minIndex = right;
-					} else {
-						minIndex = left;
-					} 
-
-					if ((*this->id_to_idle)[heap[minIndex].first] < (*this->id_to_idle)[heap[i].first]) {
-						minIndex = i;
+				if ( (right < heap_size && left < heap_size)){
+					if (minIndex == i) {
+						if((heap[right].second == heap[minIndex].second) || (heap[left].second == heap[minIndex].second)) {
+							cout << "#####IM HERERERERERERERERER######\n";
+							if ((heap[right].second == heap[minIndex].second)){
+								if ((*this->id_to_idle)[heap[right].first] > (*this->id_to_idle)[heap[minIndex].first]) {
+									minIndex = right;
+								}
+							}
+							if ((heap[left].second == heap[minIndex].second)){
+								if ((*this->id_to_idle)[heap[left].first] > (*this->id_to_idle)[heap[minIndex].first]) {
+									minIndex = left;
+								}
+							}
+						}
+					} else if ((minIndex != i) && (heap[right].second == heap[left].second)){
+						if ((*this->id_to_idle)[heap[left].first] > (*this->id_to_idle)[heap[right].first]) {
+							minIndex = left;
+						} else {
+							minIndex = right;
+						}
 					}
-					
-				} else if (!(right < heap_size && left < heap_size)) {
+				}
+				if (!(right < heap_size && left < heap_size) && minIndex == i) {
 					if (right < heap_size) {
-						if ((heap[i].second == heap[right].second) && (*this->id_to_idle)[heap[i].first] < (*this->id_to_idle)[heap[right].first]) {
+						if ((heap[minIndex].second == heap[right].second) && 
+							((*this->id_to_idle)[heap[minIndex].first] < (*this->id_to_idle)[heap[right].first])
+							) {
 							minIndex = right;
 
 						}
 					} else if (left < heap_size) {
-						if ((heap[i].second == heap[left].second) && (*this->id_to_idle)[heap[i].first] < (*this->id_to_idle)[heap[left].first]) {
+						if ((heap[minIndex].second == heap[left].second) && 
+							((*this->id_to_idle)[heap[minIndex].first] < (*this->id_to_idle)[heap[left].first])
+							) {
 							minIndex = left;
-
 						}
 					}
 				}
@@ -815,11 +830,21 @@ class FukumaMizushi {
 					if (value != 0){
 						int old = heap[i].second;
 						heap[i].second = value;
-						if (value != old) {
-							reheap_up(i);
-							reheap_down(i);
+						if (value != 0 && value != old) {
+							if (value < old){
+								reheap_up(i);	
+								// reheap_down(i);
+							} else {
+								reheap_down(i);
+								// reheap_up(i);
+							}
 						} 
+					} else {
+						heap[i].second = -1;
+						reheap_up(i);
+						extractMin();
 					}
+
 				}
 
 			}
@@ -838,15 +863,26 @@ class FukumaMizushi {
 			void clear() {
 				this->heap.clear();
 			}
-			void reheap_ins_check(){
+			
+			void reheap_ins_check(int i){
 				// this->clear();
 				int size = this->id_to_nums->size();
-				for (int i = 1; i <= size; i++){
-					// if ((*this->id_to_nums)[i]){
+
+				
+
+				// vector<pair<int, int>> update_order = this->sortMapByValue((*this->id_to_idle));
+				// for (auto &pair : update_order) {
+				// 	cout << pair.first << "    ---------------    " << pair.second << endl;
+				// }
+				// for (int i = 1; i <= size; i++){
+				// 	// if ((*this->id_to_nums)[i]){
 					this->update(i, (*this->id_to_nums)[i]);
-					// cout << "ASDFGAFHA  " << i << " " << (*this->id_to_nums)[i] << endl;
-					// }
-				}
+				// 	// cout << "ASDFGAFHA  " << i << " " << (*this->id_to_nums)[i] << endl;
+				// 	// }
+				// }
+				// for (auto &pair : update_order) {
+				// 	this->update(pair.first, (*this->id_to_nums)[pair.first]);
+				// }
 				// cout << "IM OUT !!!\n";
 				// pair<int,int> top = heap[0];
 				// while (top.second <= 0) {
@@ -904,21 +940,28 @@ class FukumaMizushi {
 			int id = (res % this->maxsize) + 1;
 			sukuna_customer* cus = new sukuna_customer(customer, res);
 			this->id_to_area[id]->push_back(cus);
-			(*this->id_to_nums)[id]++;
+			(*this->id_to_nums)[id] = this->id_to_area[id]->size();
 			for (int i = 1; i <= this->maxsize; i++) {
-				if (i != id) (*this->id_to_idle)[id]++;
-				else (*this->id_to_idle)[id] = 0;
+				if (i != id) (*this->id_to_idle)[i]++;
+				else (*this->id_to_idle)[i] = 0;
 			}
 			vector<int> vec;
 			for (int id = 1; id <= this->maxsize; id++) {
-				cout << "ID " << id << " IDLE " << (*this->id_to_idle)[id] << " NUMS "<< (*this->id_to_nums)[id] << endl;;
+				if ((*this->id_to_nums)[id]) cout << "ID " << id << " IDLE " << (*this->id_to_idle)[id] << " NUMS "<< (*this->id_to_nums)[id] << endl;;
 			}
 			min_heap->preorder_traversal(vec);
-			for (auto i : vec) {
-				cout << i << " ";
+			
+			cout << "BEFORE ADD:\n";
+			for (auto i : min_heap->heap) {
+				cout << i.first << " ";
 			}
 			cout << endl;
-			min_heap->reheap_ins_check();
+			min_heap->reheap_ins_check(id);
+			cout << "After ADD:\n";
+			for (auto i : min_heap->heap) {
+				cout << i.first << " ";
+			}
+			cout << endl;
 		}
 		void remove_area() {
 			// If area inactive -> remove
@@ -931,12 +974,13 @@ class FukumaMizushi {
 			vector<int> preorder;
 			this->min_heap->preorder_traversal(preorder);
 			for (auto i : min_heap->heap){
-				cout << "ID " << i.first << " NUMS " << i.second << endl; 
+				cout << i.first << "  "; 
 			}
-			cout << "AAAAA" << min_heap->heap[0].first << "AAAAA" << endl;
-			// for (int i = 1; i <= this->maxsize; i++){
-			// 	cout << "ID " << i << " NUMS " << this->id_to_area[i]->size() << endl;
-			// }
+			cout << endl;
+			// cout << "AAAAA" << min_heap->heap[0].first << "AAAAA" << endl;
+			for (int id = 1; id <= this->maxsize; id++){
+				cout << "ID " << id << " IDLE " << (*this->id_to_idle)[id] << " NUMS " << (*this->id_to_nums)[id] << endl;
+			}
 			for (auto i : preorder) {
 				deque<sukuna_customer*>* cur = this->id_to_area[i];
 				int cur_size = cur->size();
@@ -968,7 +1012,35 @@ class FukumaMizushi {
 				}
 			}
 		}
+		map<int, pair<int, int>> merge_maps(const map<int, int> &map1, const map<int, int> &map2) {
+			map<int, pair<int, int>> mergedMap;
+
+			for (const auto &entry : map1) {
+				int key = entry.first;
+				auto it = map2.find(key);
+
+				if (it != map2.end()) {
+					// Found matching keys in both maps
+					mergedMap[key] = make_pair(entry.second, it->second);
+				}
+			}
+
+			return mergedMap;
+		}
+		static bool cmp(const pair<int,pair<int,int>> &a, const pair<int,pair<int,int>> &b){
+				return ((a.second.first > b.second.first) && (a.second.second < b.second.second));
+			}
+		vector<pair<int,pair<int, int>>> get_priority_keiteiken(const map<int, int> &inputMap, const map<int, int> &idle_map) {
+			map<int, pair<int, int>> merged_m = merge_maps(inputMap, idle_map);
+			vector<pair<int, pair<int,int>>> sortedVec(merged_m.begin(), merged_m.end());
+			
+			// sort(sortedVec.begin(), sortedVec.end(), cmp);
+			return sortedVec;
+		}
 		void do_keiteiken(int num) {
+			for (int id = 1; id <= this->maxsize; id++){
+				cout << "ID " << id << " IDLE " << (*this->id_to_idle)[id] << " NUMS " << (*this->id_to_nums)[id] << endl;
+			}
 			queue<int> to_punch;
 			int num_area = num;
 			queue<pair<int,int>> store;
@@ -976,6 +1048,10 @@ class FukumaMizushi {
 			int heap_size = this->min_heap->heap.size();
 			if (heap_size < num_area){
 				num_area = this->min_heap->heap.size();
+			}
+			vector<pair<int, pair<int,int>>> kick_prior = get_priority_keiteiken(*this->id_to_nums,*this->id_to_idle);
+			for (auto i : kick_prior) {
+				cout << "IM KICKING :" << i.first << " WITH NUMS: " << i.second.first << " AND IDLE TIME: " << i.second.second << endl;
 			}
 			while (num_area--){
 				// cout << "ASDASD " << num_area << endl;
@@ -1023,7 +1099,7 @@ class FukumaMizushi {
 				}
 				(*this->id_to_nums)[id] = cur->size(); 
 
-				this->min_heap->reheap_ins_check();
+				this->min_heap->reheap_ins_check(id);
 			}
 		}
 };
